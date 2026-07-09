@@ -1,8 +1,7 @@
 import Link from "next/link";
-import { Link2, LayoutDashboard, QrCode, BarChart3, Globe, Settings, Link as LinkIcon } from "lucide-react";
+import { Link2, LayoutDashboard, QrCode, BarChart3, Globe, Settings, Link as LinkIcon, Plus } from "lucide-react";
 
 const NAV_ITEMS = [
-  { label: "Meus Links", icon: LinkIcon },
   { label: "QR Codes", icon: QrCode },
   { label: "Estatísticas", icon: BarChart3 },
   { label: "Domínios", icon: Globe },
@@ -18,11 +17,27 @@ export default function Sidebar() {
       </div>
 
       <Link
+        href="/dashboard/criar"
+        className="flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 transition text-white text-sm font-medium px-3 py-2 rounded-lg mb-3"
+      >
+        <Plus size={16} />
+        Novo Link
+      </Link>
+
+      <Link
         href="/dashboard"
         className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm bg-purple-600/10 text-purple-600 dark:bg-purple-600/20 dark:text-purple-300 font-medium"
       >
         <LayoutDashboard size={16} />
         Dashboard
+      </Link>
+
+      <Link
+        href="/dashboard"
+        className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 transition"
+      >
+        <LinkIcon size={16} />
+        Meus Links
       </Link>
 
       {NAV_ITEMS.map(({ label, icon: Icon }) => (
