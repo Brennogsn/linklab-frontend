@@ -17,9 +17,11 @@ export default function Navbar() {
       </div>
 
       <div className="flex items-center gap-4">
-        <a href="#" className="text-sm text-gray-300 hover:text-white transition">Entrar</a>
+        <Link href="/entrar" className="text-sm text-gray-300 hover:text-white transition">
+          Entrar
+        </Link>
         <Link
-          href="/dashboard"
+          href="/entrar"
           className="bg-purple-600 hover:bg-purple-700 transition text-sm font-medium px-4 py-2 rounded-lg"
         >
           Começar grátis

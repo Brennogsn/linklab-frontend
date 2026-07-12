@@ -1,9 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Copy, Loader2, Check } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { apiFetch, ApiError, urlCurta } from "@/lib/api";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const CHAVE_LINK_PENDENTE = "linklab_link_pendente";
 
 const FEATURES = [
   "Links ilimitados",
@@ -15,6 +18,9 @@ const FEATURES = [
 type Resultado = { codigo_curto: string; url_original: string };
 
 export default function ShortenForm() {
+  const router = useRouter();
+  const { usuario, carregando } = useAuth();
+
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState("");
@@ -25,29 +31,29 @@ export default function ShortenForm() {
     e.preventDefault();
     setErro("");
     setResultado(null);
-    setLoading(true);
 
+    if (carregando) return;
+
+    if (!usuario) {
+      sessionStorage.setItem(CHAVE_LINK_PENDENTE, url);
+      router.push("/entrar");
+      return;
+    }
+
+    setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/shorten`, {
+      const data = await apiFetch<Resultado>("/shorten", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url_original: url }),
       });
-
-      if (!response.ok) {
-        setErro(
-          response.status === 422
-            ? "URL inválida. Confira se digitou corretamente (ex: https://exemplo.com)."
-            : "Algo deu errado. Tente novamente."
-        );
-        return;
-      }
-
-      const data = await response.json();
       setResultado(data);
       setUrl("");
-    } catch {
-      setErro("Não foi possível conectar à API. O backend está rodando?");
+    } catch (err) {
+      setErro(
+        err instanceof ApiError && err.status === 422
+          ? "URL inválida. Confira se digitou corretamente (ex: https://exemplo.com)."
+          : "Algo deu errado. Tente novamente."
+      );
     } finally {
       setLoading(false);
     }
@@ -55,7 +61,7 @@ export default function ShortenForm() {
 
   function copiarLink() {
     if (!resultado) return;
-    navigator.clipboard.writeText(`${API_URL}/${resultado.codigo_curto}`);
+    navigator.clipboard.writeText(urlCurta(resultado.codigo_curto));
     setCopiado(true);
     setTimeout(() => setCopiado(false), 2000);
   }
@@ -90,7 +96,7 @@ export default function ShortenForm() {
           <div className="text-left overflow-hidden">
             <p className="text-xs text-gray-400">Seu link curto:</p>
             <p className="text-purple-300 font-medium truncate">
-              {API_URL}/{resultado.codigo_curto}
+              {urlCurta(resultado.codigo_curto)}
             </p>
           </div>
           <button
